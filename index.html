@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Art Generator</title>
+</head>
+<body>
+    <h1>ASCII Art Generator</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="image" id="image" accept="image/*" required>
+        <button type="submit">Generate ASCII Art</button>
+    </form>
+    <div id="asciiArt"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('image', document.getElementById('image').files[0]);
+
+            const response = await fetch('/generate-ascii', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.text();
+            document.getElementById('asciiArt').innerHTML = result;
+        });
+    </script>
+</body>
+</html>
