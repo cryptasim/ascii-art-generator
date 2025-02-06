@@ -4,6 +4,14 @@ import os
 
 app = Flask(__name__)
 
+# Use /tmp/ directory for Render (since other directories are read-only)
+UPLOAD_FOLDER = '/tmp/'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# HTML Template
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -49,17 +57,16 @@ def generate_ascii():
         return "No image file found", 400
 
     file = request.files['image']
-    file_path = os.path.join('uploads', file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
+    # Convert image to ASCII
     my_art = AsciiArt.from_image(file_path)
     ascii_html = my_art.to_html(columns=200, width_ratio=2)
 
-    os.remove(file_path)  # Clean up the uploaded file
+    os.remove(file_path)  # Clean up temporary file
 
     return ascii_html
 
 if __name__ == '__main__':
-    if not os.path.exists('uploads'):
-        os.makedirs('uploads')
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=10000, debug=True)
